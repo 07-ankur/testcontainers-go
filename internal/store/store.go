@@ -1,9 +1,9 @@
 package store
 
 import (
-	"context",
-	"database/sql",
-	"fmt",
+	"context"
+	"database/sql"
+	"fmt"
 	"errors"
 
 	_"github.com/jackc/pgx/v5/stdlib"
@@ -52,7 +52,7 @@ func GetUserByID(ctx context.Context, db *sql.DB, id int) (User, error) {
 	query := `SELECT id, name, email FROM users WHERE id = $1`
 	var user User
 	if err := db.QueryRowContext(ctx, query, id).Scan(&user.ID, &user.Name, &user.Email); err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return User{}, ErrorNotFound
 		}
 		return User{}, fmt.Errorf("failed to get user: %w", err)
