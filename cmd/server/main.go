@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"testcontainers-demo/internal/api"
-	"testcontainers-demo/internal/store"
+	"testcontainers/internal/api"
+	"testcontainers/internal/store"
 )
 
 func main(){
@@ -26,7 +26,7 @@ func main(){
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	db, err := store.Open(ctx, dsn)
+	db, err := store.OpenDB(ctx, dsn)
 	if err != nil {
 		log.Fatal("connecting to db: ", err)
 	}
