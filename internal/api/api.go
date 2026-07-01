@@ -12,11 +12,11 @@ import (
 
 func NewRouter(db *sql.DB) http.Handler {
 	mux := http.NewServeMux()
-	
+
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		_,_ = w.Write([]byte("OK"))
-})
+		_, _ = w.Write([]byte("OK"))
+	})
 
 	mux.HandleFunc("POST /users", func(w http.ResponseWriter, r *http.Request) {
 		var user store.User
@@ -28,7 +28,7 @@ func NewRouter(db *sql.DB) http.Handler {
 			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "name and email are required"})
 			return
 		}
-		
+
 		id, err := store.InsertUser(r.Context(), db, user)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -54,6 +54,15 @@ func NewRouter(db *sql.DB) http.Handler {
 			return
 		}
 		writeJSON(w, http.StatusOK, user)
+	})
+
+	mux.HandleFunc("GET /users", func(w http.ResponseWriter, r *http.Request) {
+		users, err := store.ListUsers(r.Context(), db)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		writeJSON(w, http.StatusOK, users)
 	})
 
 	return mux
