@@ -62,3 +62,22 @@ func GetUserByID(ctx context.Context, db *sql.DB, id int) (User, error) {
 	}
 	return user, nil
 }
+
+func ListUsers(ctx context.Context, db *sql.DB) ([]User, error) {
+	query := `SELECT id, name, email FROM users`
+	rows, err := db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list users: %w", err)
+	}
+	defer rows.Close()
+
+	users := []User{}
+	for rows.Next() {
+		var user User
+		if err := rows.Scan(&user.ID, &user.Name, &user.Email); err != nil {
+			return nil, fmt.Errorf("failed to scan user: %w", err)
+		}
+		users = append(users, user)
+	}
+	return users, nil
+}	
