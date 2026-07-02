@@ -65,6 +65,23 @@ func NewRouter(db *sql.DB) http.Handler {
 		writeJSON(w, http.StatusOK, users)
 	})
 
+	mux.HandleFunc("DELETE /users/{id}", func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.Atoi(r.PathValue("id"))
+		if err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid user ID"})
+			return
+		}
+		if err := store.DeleteUser(r.Context(), db, id); err != nil {
+			if errors.Is(err, store.ErrorNotFound) {
+				writeJSON(w, http.StatusNotFound, map[string]string{"error": "user not found"})
+				return
+			}
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+	})
+
 	return mux
 }
 
